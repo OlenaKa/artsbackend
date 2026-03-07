@@ -3,13 +3,30 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+const requireEnv = (name: string): string => {
+  const value = process.env[name];
+  if (!value || value.trim() === '') {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+};
+
+const parseNumberEnv = (name: string): number => {
+  const value = requireEnv(name);
+  const parsed = Number.parseInt(value, 10);
+  if (Number.isNaN(parsed)) {
+    throw new Error(`Environment variable ${name} must be a number`);
+  }
+  return parsed;
+};
+
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '3306'),
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'artsdb',
-  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '10'),
+  host: requireEnv('DB_HOST'),
+  port: parseNumberEnv('DB_PORT'),
+  user: requireEnv('DB_USER'),
+  password: requireEnv('DB_PASSWORD'),
+  database: requireEnv('DB_NAME'),
+  connectionLimit: parseNumberEnv('DB_CONNECTION_LIMIT'),
   waitForConnections: true,
   queueLimit: 0,
 });
