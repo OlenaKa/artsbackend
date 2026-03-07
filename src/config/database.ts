@@ -20,21 +20,29 @@ const parseNumberEnv = (name: string): number => {
   return parsed;
 };
 
-const pool = mysql.createPool({
-  host: requireEnv('DB_HOST'),
-  port: parseNumberEnv('DB_PORT'),
-  user: requireEnv('DB_USER'),
-  password: requireEnv('DB_PASSWORD'),
-  database: requireEnv('DB_NAME'),
-  connectionLimit: parseNumberEnv('DB_CONNECTION_LIMIT'),
-  waitForConnections: true,
-  queueLimit: 0,
-});
+let pool: mysql.Pool | null = null;
+
+export const getPool = (): mysql.Pool => {
+  if (!pool) {
+    pool = mysql.createPool({
+      host: requireEnv('DB_HOST'),
+      port: parseNumberEnv('DB_PORT'),
+      user: requireEnv('DB_USER'),
+      password: requireEnv('DB_PASSWORD'),
+      database: requireEnv('DB_NAME'),
+      connectionLimit: parseNumberEnv('DB_CONNECTION_LIMIT'),
+      waitForConnections: true,
+      queueLimit: 0,
+    });
+  }
+
+  return pool;
+};
 
 // Test database connection
 export const testConnection = async (): Promise<void> => {
   try {
-    const connection = await pool.getConnection();
+    const connection = await getPool().getConnection();
     console.log('✓ Database connected successfully');
     connection.release();
   } catch (error) {
@@ -43,4 +51,4 @@ export const testConnection = async (): Promise<void> => {
   }
 };
 
-export default pool;
+export default getPool;

@@ -3,8 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import routes from './routes';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
-// import { testConnection } from './config/database';
-import { testConnection } from './config/db';
+import { testConnection } from './config/database';
 
 dotenv.config();
 
