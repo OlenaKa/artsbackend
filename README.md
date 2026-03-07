@@ -15,7 +15,7 @@ Backend API for Arts project built with Node.js, TypeScript, Express.js, and Mar
 
 ## Prerequisites
 
-- Node.js (v16 or higher)
+- Node.js (v20)
 - npm or yarn
 - MariaDB server running
 
