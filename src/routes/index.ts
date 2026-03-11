@@ -4,6 +4,7 @@ import { getCategories } from '../controllers/categoriesController';
 import { getStikeriPricing } from '../controllers/stikeriController';
 import { getPvcNalepnicePrices } from '../controllers/pvcNalepniceController';
 import { getZastitneNalepnicePricing } from '../controllers/zastitneNalepniceController';
+import { getPapirneNalepnicePricing } from '../controllers/papirneNalepniceController';
 
 const router = Router();
 
@@ -12,5 +13,6 @@ router.get('/categories', getCategories);
 router.get('/stikeri', getStikeriPricing);
 router.get('/pvc-nalepnice-prices', getPvcNalepnicePrices);
 router.get('/zastitne-nalepnice-pricing', getZastitneNalepnicePricing);
+router.get('/papirne-nalepnice-pricing', getPapirneNalepnicePricing);
 
 export default router;
