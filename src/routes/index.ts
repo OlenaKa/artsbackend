@@ -6,6 +6,7 @@ import { getPvcNalepnicePrices } from '../controllers/pvcNalepniceController';
 import { getZastitneNalepnicePricing } from '../controllers/zastitneNalepniceController';
 import { getPapirneNalepnicePricing } from '../controllers/papirneNalepniceController';
 import { getDigitalnaStampaPricing } from '../controllers/digitalnaStampaController';
+import { getMagneti2dPricing } from '../controllers/magneti2dController';
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.get('/pvc-nalepnice-prices', getPvcNalepnicePrices);
 router.get('/zastitne-nalepnice-pricing', getZastitneNalepnicePricing);
 router.get('/papirne-nalepnice-pricing', getPapirneNalepnicePricing);
 router.get('/digitalna-stampa-pricing', getDigitalnaStampaPricing);
+router.get('/magneti-2d-pricing', getMagneti2dPricing);
 
 export default router;
