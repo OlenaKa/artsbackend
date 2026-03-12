@@ -9,6 +9,7 @@ import { getDigitalnaStampaPricing } from '../controllers/digitalnaStampaControl
 import { getMagneti2dPricing } from '../controllers/magneti2dController';
 import { getMagneti3dPricing } from '../controllers/magneti3dController';
 import { getRollupPricing } from '../controllers/rollupController';
+import { getCdDvdPricing } from '../controllers/cdDvdController';
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.get('/digitalna-stampa-pricing', getDigitalnaStampaPricing);
 router.get('/magneti-2d-pricing', getMagneti2dPricing);
 router.get('/magneti-3d-pricing', getMagneti3dPricing);
 router.get('/rollup-pricing', getRollupPricing);
+router.get('/cd-dvd-pricing', getCdDvdPricing);
 
 export default router;
