@@ -10,6 +10,10 @@ import { getMagneti2dPricing } from '../controllers/magneti2dController';
 import { getMagneti3dPricing } from '../controllers/magneti3dController';
 import { getRollupPricing } from '../controllers/rollupController';
 import { getCdDvdPricing } from '../controllers/cdDvdController';
+import {
+  getPromoSolutionProducts,
+  getPromoSolutionProductById,
+} from '../controllers/productsController';
 
 const router = Router();
 
@@ -24,5 +28,7 @@ router.get('/magneti-2d-pricing', getMagneti2dPricing);
 router.get('/magneti-3d-pricing', getMagneti3dPricing);
 router.get('/rollup-pricing', getRollupPricing);
 router.get('/cd-dvd-pricing', getCdDvdPricing);
+router.get('/promo-products', getPromoSolutionProducts);
+router.get('/promo-products/:id', getPromoSolutionProductById);
 
 export default router;
