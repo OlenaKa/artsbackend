@@ -3,6 +3,8 @@
  * Handles fetching products and data from PromoSolution API
  */
 
+import fetch from 'node-fetch';
+
 const API_BASE_URL = 'https://apiv1.promosolution.services';
 const LOGIN = 'artsdesign3';
 const PASSWORD = 'fe88Ib-ogathus-O5edr';
