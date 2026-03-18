@@ -3,66 +3,43 @@
  * Handles fetching products and data from PromoSolution API
  */
 
-import fetch from 'node-fetch';
+import axios from 'axios';
+import dotenv from 'dotenv';
 
-const API_BASE_URL = 'https://apiv1.promosolution.services';
-const API_APP_PATH = '/get-p-products';
-const TOKEN_URL = `${API_BASE_URL}/token`;
-const LOGIN = 'artsdesign3';
-const PASSWORD = 'fe88Ib-ogathus-O5edr';
+dotenv.config();
+
+const PROMO_BASE_URL = process.env.PROMO_BASE_URL; 
+axios.defaults.baseURL = PROMO_BASE_URL;
+
+const LOGIN = process.env.PUBLIK_LOGIN; 
+const PASSWORD = process.env.PUBLIK_PASS;
 
 /**
- * Create URL-encoded credentials for OAuth password grant
+ * Get access token from PromoSolution API
  */
-const createTokenRequestBody = (): URLSearchParams => {
-  return new URLSearchParams({
-    grant_type: 'password',
-    username: LOGIN,
-    password: PASSWORD,
-  });
-};
-
-const getAccessToken = async (): Promise<string> => {
-  const tokenResponse = await fetch(TOKEN_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Accept: 'application/json',
-    },
-    body: createTokenRequestBody().toString(),
-  });
-
-  if (!tokenResponse.ok) {
-    throw new Error(
-      `PromoSolution token error: ${tokenResponse.status} ${tokenResponse.statusText}`
-    );
-  }
-
-  const tokenData = (await tokenResponse.json()) as { access_token?: string };
-  if (!tokenData.access_token) {
-    throw new Error('PromoSolution token response did not include access_token');
-  }
-
-  return tokenData.access_token;
-};
-
-const parseJsonResponse = async (response: {
-  headers: { get(name: string): string | null };
-  text(): Promise<string>;
-}) => {
-  const contentType = response.headers.get('content-type') || '';
-  const bodyText = await response.text();
-
-  // Prevent HTML login pages from being parsed as JSON.
-  if (!contentType.includes('application/json')) {
-    throw new Error(`Expected JSON but received content-type: ${contentType || 'unknown'}`);
-  }
-
+const getToken = async (): Promise<string> => {
   try {
-    return JSON.parse(bodyText);
-  } catch {
-    throw new Error('PromoSolution returned invalid JSON content');
+    const result = await axios.post(
+      '/Token',
+      `grant_type=password&username=${LOGIN}&password=${PASSWORD}&`
+    );
+    return result.data.access_token;
+  } catch (error) {
+    console.error('Error getting PromoSolution token:', error);
+    throw error;
   }
+};
+
+/**
+ * Token management object
+ */
+const token = {
+  set(accessToken: string) {
+    axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+  },
+  unset() {
+    axios.defaults.headers.common.Authorization = '';
+  },
 };
 
 /**
@@ -70,21 +47,10 @@ const parseJsonResponse = async (response: {
  */
 export const fetchPromoSolutionProducts = async () => {
   try {
-    const accessToken = await getAccessToken();
-    const response = await fetch(`${API_BASE_URL}${API_APP_PATH}/api/Product`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`PromoSolution API error: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await parseJsonResponse(response);
-    return data;
+    const newToken = await getToken();
+    token.set(newToken);
+    const result = await axios.get('/sr-Latin-CS/api/Product');
+    return result.data;
   } catch (error) {
     console.error('Error fetching from PromoSolution API:', error);
     throw error;
