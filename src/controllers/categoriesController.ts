@@ -5,88 +5,12 @@ import { fetchPromoSolutionCategories } from '../services/promoSolutionService';
 
 export const getCategories = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const pool = getPool();
-    const [rows] = await pool.query<RowDataPacket[]>('SELECT * FROM categories');
-
-    const baseCategories = rows as Array<Record<string, unknown>>;
-    let mergedCategories: Array<Record<string, unknown>> = [...baseCategories];
-
-    // Fetch PromoSolution categories and append them as child categories of Promo materijal.
-    try {
-      const remoteCategories = await fetchPromoSolutionCategories();
-      const categoriesSet = new Set<string>();
-
-      if (Array.isArray(remoteCategories)) {
-        remoteCategories.forEach((categoryItem: Record<string, unknown>) => {
-          const categoryName =
-            categoryItem.title ||
-            categoryItem.Title ||
-            categoryItem.name ||
-            categoryItem.Name ||
-            categoryItem.category ||
-            categoryItem.Category ||
-            categoryItem.categoryName ||
-            categoryItem.CategoryName;
-
-          if (typeof categoryName === 'string' && categoryName.trim() !== '') {
-            categoriesSet.add(categoryName.trim());
-          }
-        });
-      }
-
-      const promoCategoryNames = Array.from(categoriesSet).sort((a, b) => a.localeCompare(b));
-      const promoParent = baseCategories.find((row) => {
-        const title = typeof row.title === 'string' ? row.title : '';
-        const name = typeof row.name === 'string' ? row.name : '';
-        const component = typeof row.component === 'string' ? row.component : '';
-
-        return (
-          title === 'Promo materijal' ||
-          title === 'Promo Material' ||
-          name === 'Promo materijal' ||
-          name === 'Promo Material' ||
-          component === 'PromoMaterijal'
-        );
-      });
-
-      if (promoParent && typeof promoParent.id === 'number' && promoCategoryNames.length > 0) {
-        const maxId = baseCategories.reduce((max, row) => {
-          const id = typeof row.id === 'number' ? row.id : 0;
-          return id > max ? id : max;
-        }, 0);
-
-        const promoChildren = promoCategoryNames.map((title, index) => {
-          const slug = title
-            .toLowerCase()
-            .trim()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-+|-+$/g, '');
-
-          return {
-            id: maxId + index + 1,
-            title,
-            slug,
-            parent_id: promoParent.id,
-            component: 'PromoMaterijalItem',
-            image_src: promoParent.image_src ?? null,
-            sort_order: index + 1,
-            is_visible: 1,
-            created_at: null,
-            updated_at: null,
-            source: 'promosolution',
-          };
-        });
-
-        mergedCategories = [...baseCategories, ...promoChildren];
-      }
-    } catch (error) {
-      console.warn('Warning: Could not fetch PromoSolution categories:', error);
-    }
+    const [rows] = await getPool().query<RowDataPacket[]>('SELECT * FROM categories');
 
     res.status(200).json({
       success: true,
-      data: mergedCategories,
-      count: mergedCategories.length,
+      data: rows,
+      count: rows.length,
     });
   } catch (error) {
     console.error('Error fetching categories:', error);
