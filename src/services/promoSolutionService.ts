@@ -58,6 +58,21 @@ export const fetchPromoSolutionProducts = async () => {
 };
 
 /**
+ * Fetch categories from PromoSolution API
+ */
+export const fetchPromoSolutionCategories = async () => {
+  try {
+    const newToken = await getToken();
+    token.set(newToken);
+    const result = await axios.get('/sr-Latin-CS/api/Category');
+    return result.data;
+  } catch (error) {
+    console.error('Error fetching categories from PromoSolution API:', error);
+    throw error;
+  }
+};
+
+/**
  * Fetch specific product data from PromoSolution
  */
 export const fetchPromoSolutionProduct = async (productId: string) => {

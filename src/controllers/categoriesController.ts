@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import getPool from '../config/database';
 import { RowDataPacket } from 'mysql2';
-import { fetchPromoSolutionProducts } from '../services/promoSolutionService';
+import { fetchPromoSolutionCategories } from '../services/promoSolutionService';
 
 export const getCategories = async (_req: Request, res: Response): Promise<void> => {
   try {
@@ -11,15 +11,21 @@ export const getCategories = async (_req: Request, res: Response): Promise<void>
     // Fetch PromoSolution categories
     let promoCategories: string[] = [];
     try {
-      const products = await fetchPromoSolutionProducts();
+      const categories = await fetchPromoSolutionCategories();
       const categoriesSet = new Set<string>();
 
-      if (Array.isArray(products)) {
-        products.forEach((product: Record<string, unknown>) => {
-          const category =
-            product.category || product.Category || product.categoryName || product.CategoryName;
-          if (category && typeof category === 'string') {
-            categoriesSet.add(category);
+      if (Array.isArray(categories)) {
+        categories.forEach((categoryItem: Record<string, unknown>) => {
+          const categoryName =
+            categoryItem.name ||
+            categoryItem.Name ||
+            categoryItem.category ||
+            categoryItem.Category ||
+            categoryItem.categoryName ||
+            categoryItem.CategoryName;
+
+          if (typeof categoryName === 'string' && categoryName.trim() !== '') {
+            categoriesSet.add(categoryName.trim());
           }
         });
       }
@@ -29,18 +35,18 @@ export const getCategories = async (_req: Request, res: Response): Promise<void>
       console.warn('Warning: Could not fetch PromoSolution categories:', error);
     }
 
-    // Build category structure with subcategories
+    // Build category structure and add PromoSolution categories to items
     const categoriesWithSubcategories = rows.map((category: RowDataPacket) => {
       const cat = category as { id: number; name: string; parent_id: number | null };
 
-      // If this is "Promo materijal", add PromoSolution categories as subcategories
-      if (cat.name === 'Promo materijal' && promoCategories.length > 0) {
+      // If this is Promo Material, attach PromoSolution categories as items
+      if (
+        (cat.name === 'Promo Material' || cat.name === 'Promo materijal') &&
+        promoCategories.length > 0
+      ) {
         return {
           ...cat,
-          subcategories: promoCategories.map((name) => ({
-            name,
-            parent_id: cat.id,
-          })),
+          items: promoCategories,
         };
       }
 
@@ -69,17 +75,23 @@ export const syncPromoCategories = async (_req: Request, res: Response): Promise
   try {
     const pool = getPool();
 
-    // Get PromoSolution products
-    const products = await fetchPromoSolutionProducts();
+    // Get PromoSolution categories
+    const categories = await fetchPromoSolutionCategories();
 
-    // Extract unique categories
+    // Extract unique category names
     const categoriesSet = new Set<string>();
-    if (Array.isArray(products)) {
-      products.forEach((product: Record<string, unknown>) => {
-        const category =
-          product.category || product.Category || product.categoryName || product.CategoryName;
-        if (category && typeof category === 'string') {
-          categoriesSet.add(category);
+    if (Array.isArray(categories)) {
+      categories.forEach((categoryItem: Record<string, unknown>) => {
+        const categoryName =
+          categoryItem.name ||
+          categoryItem.Name ||
+          categoryItem.category ||
+          categoryItem.Category ||
+          categoryItem.categoryName ||
+          categoryItem.CategoryName;
+
+        if (typeof categoryName === 'string' && categoryName.trim() !== '') {
+          categoriesSet.add(categoryName.trim());
         }
       });
     }

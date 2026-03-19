@@ -5,6 +5,10 @@ import {
 } from '../services/promoSolutionService';
 
 /**
+ * Pure helper: extract a unique list of category names from products array.
+ */
+
+/**
  * Get all products from PromoSolution
  */
 export const getPromoSolutionProducts = async (_req: Request, res: Response) => {
