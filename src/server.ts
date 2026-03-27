@@ -26,9 +26,13 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     await testConnection();
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
+    const server = app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+    server.on('error', (error: NodeJS.ErrnoException) => {
+      console.error('Failed to bind port:', error.message);
+      process.exit(1);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
