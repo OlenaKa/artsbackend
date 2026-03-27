@@ -34,9 +34,6 @@ export const getPool = (): mysql.Pool => {
       waitForConnections: true,
       queueLimit: 0,
     });
-    pool.on('error', (err: NodeJS.ErrnoException) => {
-      console.error('Database pool error:', err.message);
-    });
   }
 
   return pool;
